@@ -36,7 +36,9 @@ $data is any additional information you'll need to ensure the job gets completed
 
 ### Running workers to do the jobs
 
-Minion.php is precisely that. It is designed to be as lightweight as possible, and it's only role is to clear as many task as it can from the task pool. Note that you can run as many minions on as many machines as you want, and they will start clearing the jobs in the task pool.
+Minion.php is precisely that. It is designed to be as lightweight as possible, and it's only role is to clear as many tasks as it can from the task pool. Note that you can run as many minions on as many machines as you want, and they will start clearing the jobs in the task pool.
+
+Of course you will first have to specify what task it should run, but that can be added into the code without cause much changes in the memory footprint using [exec](http://www.php.net/manual/en/function.exec.php) or [system](http://php.net/manual/en/function.system.php).
 
 Run it from the commandline and send it to the background by simply doing the following
 
