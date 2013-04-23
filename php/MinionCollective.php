@@ -4,17 +4,15 @@
 * Allows you to interact with the distributed task pool
 */
 class MinionCollective{
-	//Maximum execution time before regarded as failure in seconds
-	private $timeout 		= 60;
-	//Collection name of task pool
-	private $taskPoolName 	= 'queue';
-	//Connection string, in the form 'mongodb://[username:password@]host1[:port1][,host2[:port2:],...]/db'
-	private $mongoURI		= 'mongodb://localhost:27017';
-	//Connection options
-	private $mongoOptions	= array();
-
-	function __construct(argument){
-
+	function __construct(){
+		//Maximum execution time before regarded as failure in seconds
+		$this->timeout = 60;
+		//Collection name of task pool
+		$this->taskPoolName = 'queue';
+		//Connection string, in the form 'mongodb://[username:password@]host1[:port1][,host2[:port2:],...]/db'
+		$this->mongoURI = 'mongodb://localhost:27017';
+		//Connection options
+		$this->mongoOptions = array();
 	}
 
 	/******************
@@ -75,13 +73,18 @@ class MinionCollective{
     }
 
     private function connectDB(){
-		return new MongoClient($mongoURI, $mongoOptions);
+		return new MongoClient($this->mongoURI, $this->mongoOptions);
 	}
 
 	private function connectCollection(){
-		return $this->connectDB()->$taskPoolName;
+		$collectionName = $this->taskPoolName;
+		return $this->connectDB()->$collectionName;
 	}
 
+	private $timeout;
+	private $taskPoolName;
+	private $mongoURI;
+	private $mongoOptions;
 }
 
 
