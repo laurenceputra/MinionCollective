@@ -12,7 +12,7 @@ class MinionCollective{
 		//Connection string, in the form 'mongodb://[username:password@]host1[:port1][,host2[:port2:],...]/db'
 		$this->mongoURI = 'mongodb://localhost:27017';
 		//Connection options
-		$this->mongoOptions = array();
+		$this->mongoOptions = array('db' => 'MinionCollective');
 	}
 
 	/******************
@@ -45,7 +45,7 @@ class MinionCollective{
 	 * Identical to getJob, except it pulls out jobs that are suspected of having crashed
 	******************/	
 	public function getExpiredJob(){
-		$job = array('status' => 'I', 'last_update' => array('$lt' => time() - $timeout));
+		$job = array('status' => 'I', 'last_update' => array('$lt' => time() - $this->timeout));
         $modify = array('$set' => array('status' => 'I', 'last_update' => time()));
         $options = array('sort' => array("last_update" => 1));
 		$collection = $this->connectCollection();
@@ -78,7 +78,7 @@ class MinionCollective{
 
 	private function connectCollection(){
 		$collectionName = $this->taskPoolName;
-		return $this->connectDB()->$collectionName;
+		return $this->connectDB()->MinionCollective->queue;
 	}
 
 	private $timeout;
