@@ -4,7 +4,8 @@ This is the PHP version of the Minion Collective. Simply import MinionCollective
 
 ## Requirements
 
-    PHP MongoDB driver
+1. PHP MongoDB driver
+2. A MongoDB Database/Cluster
 
 ## How to use
 
