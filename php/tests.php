@@ -5,9 +5,7 @@ $timeout = 1;
 
 $minionCollective = new MinionCollective();
 
-$job = $minionCollective->getJob();
-
-if($job == NULL){
+if($minionCollective->getJobCount() == 0){
 	echo "No Jobs in DB".PHP_EOL;
 	echo "Tests Initialising".PHP_EOL;
 	$minionCollective->addJob('doSomething', 1);
