@@ -4,15 +4,22 @@
 * Allows you to interact with the distributed task pool
 */
 class MinionCollective{
-	function __construct(){
-		//Maximum execution time before regarded as failure in seconds
-		$this->timeout = 60;
-		//Collection name of task pool
-		$this->taskPoolName = 'queue';
-		//Connection string, in the form 'mongodb://[username:password@]host1[:port1][,host2[:port2:],...]/db'
-		$this->mongoURI = 'mongodb://localhost:27017';
-		//Connection options
-		$this->mongoOptions = array('db' => 'MinionCollective');
+
+	/******************
+	 * Creates the MinionCollective Object
+	 * Takes in timeout, dbName, taskPoolName, mongoURI, and mongooptions
+	 * timeout is the maximum execution time before regarded as failure in seconds
+	 * dbName is name of the database that will be used
+	 * taskPoolName is the name of the collection that will be used
+	 * mongoURI is connection string used to connect to MongoDB
+	 * mongoOptions is an array containing the options for connecting to MongoDB
+	******************/
+	function __construct($timeout = 60, $dbName = 'MinionCollective', $taskPoolName = 'queue', $mongoURI = 'mongodb://localhost:27017', $mongoOptions = array()){
+		$this->timeout = $timeout;
+		$this->taskPoolName = $taskPoolName;
+		$this->dbName = $dbName;
+		$this->mongoURI = $mongoURI;
+		$this->mongoOptions = $mongoOptions;
 	}
 
 	/******************
@@ -44,8 +51,11 @@ class MinionCollective{
 	/******************
 	 * Identical to getJob, except it pulls out jobs that are suspected of having crashed
 	******************/	
-	public function getExpiredJob(){
-		$job = array('status' => 'I', 'last_update' => array('$lt' => time() - $this->timeout));
+	public function getExpiredJob($timeout = -1){
+		if($timeout == -1){
+			$timeout = $this->timeout;
+		}
+		$job = array('status' => 'I', 'last_update' => array('$lt' => time() - $timeout));
         $modify = array('$set' => array('status' => 'I', 'last_update' => time()));
         $options = array('sort' => array("last_update" => 1));
 		$collection = $this->connectCollection();
@@ -56,20 +66,25 @@ class MinionCollective{
 	 * Specifies a job as finished
 	 * Returns an array representing the job that was inserted
 	******************/
-	public function finishJob($id){
+	public function finishJob($id, $new = FALSE){
         $job = array('_id' => $id);
         $modify = array('$set' => array('status' => 'C', 'last_update' => time()));
+        $options = array('new' => $new);
         $collection = $this->connectCollection();
-        return $collection->findAndModify($job, $modify);
+        return $collection->findAndModify($job, $modify, NULL, $options);
     }
 
     /******************
 	 * Removes all completed jobs
 	******************/
-	public function removeJob(){
+	public function removeJobs(){
         $job = array('status' => 'C');
-        $collection = $this->choose_collection();
+        $collection = $this->connectCollection();
         $collection->remove($job);
+    }
+
+    public function getJobCount(){
+    	return $this->connectCollection()->count();
     }
 
     private function connectDB(){
@@ -77,7 +92,16 @@ class MinionCollective{
 	}
 
 	private function connectCollection(){
+		$conn = $this->connectDB();
 		$collectionName = $this->taskPoolName;
+		if(is_a($conn, 'MongoClient')){
+			$dbName = $this->dbName;
+			return $conn->$dbName->$collectionName;
+		}
+		else{
+			return $conn->$collectionName;
+		}
+		
 		return $this->connectDB()->MinionCollective->queue;
 	}
 
@@ -85,6 +109,7 @@ class MinionCollective{
 	private $taskPoolName;
 	private $mongoURI;
 	private $mongoOptions;
+	private $dbName;
 }
 
 
