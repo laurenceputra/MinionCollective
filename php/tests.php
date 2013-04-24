@@ -3,7 +3,7 @@ require_once('MinionCollective.php');
 
 $timeout = 1;
 
-$minionCollective = new MinionCollective();
+$minionCollective = new MinionCollective($timeout, 'MinionCollective', 'queue');
 
 if($minionCollective->getJobCount() == 0){
 	echo "No Jobs in DB".PHP_EOL;
@@ -23,7 +23,7 @@ if($minionCollective->getJobCount() == 0){
 	sleep($timeout + 1);
 
 	echo "Get Expired Job Test ";
-	$job = $minionCollective->getExpiredJob($timeout);
+	$job = $minionCollective->getExpiredJob();
 	if($job['action'] == 'doSomething' && $job['id'] == 1){
 		echo "Passed".PHP_EOL;
 	}

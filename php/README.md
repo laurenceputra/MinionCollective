@@ -9,18 +9,14 @@ This is the PHP version of the Minion Collective. Simply import MinionCollective
 
 ## How to use
 
-You will have to set up the following variables in the MinionCollective.php file. The default set of settings should work for most normal setups.
-
-    private $timeout
-	private $taskPoolName
-	private $mongoURI
-	private $mongoOptions
-
-After that, include the following 2 lines just before you want to start using the MinionCollective
+Include the following 2 lines just before you want to start using the MinionCollective
 
     require_once('MinionCollective.php');
     $minionCollective = new MinionCollective();
 
+MinionCollective takes in the following arguments with default values
+
+    MinionCollective($timeout = 60, $dbName = 'MinionCollective', $taskPoolName = 'queue', $mongoURI = 'mongodb://localhost:27017', $mongoOptions = array())
 
 ### Adding jobs to the task pool
 
