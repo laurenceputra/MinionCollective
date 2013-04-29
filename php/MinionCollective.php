@@ -51,11 +51,8 @@ class MinionCollective{
     /******************
      * Identical to getJob, except it pulls out jobs that are suspected of having crashed
     ******************/    
-    public function getExpiredJob($timeout = -1){
-        if($timeout == -1){
-            $timeout = $this->timeout;
-        }
-        $job = array('status' => 'I', 'last_update' => array('$lt' => time() - $timeout));
+    public function getExpiredJob(){
+        $job = array('status' => 'I', 'last_update' => array('$lt' => time() - $this->timeout));
         $modify = array('$set' => array('status' => 'I', 'last_update' => time()));
         $options = array('sort' => array("last_update" => 1));
         $collection = $this->connectCollection();
