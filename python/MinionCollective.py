@@ -23,8 +23,14 @@ class MinionCollective:
 		else:
 			return False
 
-	def getJob(self):
-		job = {'status' : 'W'}
+	def getJob(self, action = None):
+		if action == None:
+			job = {'status' : 'W'}
+		else:
+			job = {
+				'status' : 'W',
+				'action' : action
+			}
 		modify = {
 			'$set' : {
 				'status' : 'I',
