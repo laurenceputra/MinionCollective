@@ -18,10 +18,7 @@ class MinionCollective:
 			'status'		: 'W',
 			'last_update'	: int(time())
 		}
-		if self._conn.alive():
-			return self._connectCollection().insert(job)
-		else:
-			return False
+		return self._connectCollection().insert(job)
 
 	def getJob(self, action = None):
 		if action == None:
@@ -37,11 +34,7 @@ class MinionCollective:
 				'last_update' : int(time())
 			}
 		}
-
-		if self._conn.alive():
-			return self._connectCollection().find_and_modify(job, modify, False, [('last_update', 1)])
-		else:
-			return False
+		return self._connectCollection().find_and_modify(job, modify, False, [('last_update', 1)])
 
 	def getExpiredJob(self):
 		job = {
@@ -56,10 +49,7 @@ class MinionCollective:
 				'last_update' : int(time())
 			}
 		}
-		if self._conn.alive():
-			return self._connectCollection().find_and_modify(job, modify, False, [('last_update', 1)])
-		else:
-			return False
+		return self._connectCollection().find_and_modify(job, modify, False, [('last_update', 1)])
 
 	def finishJob(self, id, newVar = False):
 		job = {
@@ -71,30 +61,24 @@ class MinionCollective:
 				'last_update' : int(time())
 			}
 		}
-
-		if self._conn.alive():
-			return self._connectCollection().find_and_modify(job, modify, False, None, False, new=newVar)
-		else:
-			return False
+		return self._connectCollection().find_and_modify(job, modify, False, None, False, new=newVar)
 
 	def removeJobs(self):
 		job = {
 			'status' : 'C'
 		}
-		if self._conn.alive():
-			return self._connectCollection().remove(job)
-		else:
-			return False
+		return self._connectCollection().remove(job)
 
 	def getJobCount(self):
-		if self._conn.alive():
-			return self._connectCollection().count()
-		else:
-			return False
+		return self._connectCollection().count()
+
 
 	def _connectServer(self):
 		return pymongo.MongoClient(self._mongoURI);
 
 	def _connectCollection(self):
+		if not self._conn.alive():
+			self._conn = self._connectServer()
 		return self._conn[self._dbName][self._taskPoolName]
+
 
