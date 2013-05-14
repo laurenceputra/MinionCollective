@@ -32,6 +32,7 @@ class MinionCollective:
 				'status' : 'W',
 				'action' : action
 			}
+		print type(job)
 		modify = {
 			'$set' : {
 				'status' : 'I',
