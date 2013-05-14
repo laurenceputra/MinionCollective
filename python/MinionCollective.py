@@ -3,12 +3,16 @@ from time import time
 
 
 class MinionCollective:
-	def __init__(self, timeout = 60, dbName = 'MinionCollective', taskPoolName = 'queue', mongoURI = 'mongodb://localhost:27017'):
+	def __init__(self, timeout = 60, dbName = 'MinionCollective', taskPoolName = 'queue', mongoURI = 'mongodb://localhost:27017', replicaSet = None):
 		self._timeout = timeout
 		self._dbName = dbName
 		self._taskPoolName = taskPoolName
 		self._mongoURI = mongoURI
-		self._conn = self._connectServer()
+		self._replicaSet = replicaSet
+		if replicaSet == None:
+			self._conn = self._connectServer()
+		else:
+			self._conn = self._connectReplicaSet()
 
 	def addJob(self, action, id, data = ''):
 		job = {
@@ -76,9 +80,15 @@ class MinionCollective:
 	def _connectServer(self):
 		return pymongo.MongoClient(self._mongoURI);
 
+	def _connectReplicaSet(self):
+		return pymongo.MongoReplicaSetClient(self._mongoURI, self._replicaSet);
+
 	def _connectCollection(self):
 		if not self._conn.alive():
-			self._conn = self._connectServer()
+			if self._replicaSet == None:
+				self._conn = self._connectServer()
+			else:
+				self._conn = self._connectReplicaSet()
 		return self._conn[self._dbName][self._taskPoolName]
 
 
