@@ -1,4 +1,5 @@
 import pymongo;
+import mongodb_proxy;
 from time import time
 
 
@@ -10,11 +11,11 @@ class MinionCollective:
 		self._mongoURI = mongoURI
 		self._replicaSet = replicaSet
 		if replicaSet == None:
-			self._conn = self._connectServer()
+			self._conn = self._connect_server()
 		else:
 			self._conn = self._connectReplicaSet()
 
-	def addJob(self, action, id, data = ''):
+	def add_job(self, action, id, data = ''):
 		job = {
 			'action'		: action,
 			'id'			: id,
@@ -22,9 +23,9 @@ class MinionCollective:
 			'status'		: 'W',
 			'last_update'	: int(time())
 		}
-		return self._connectCollection().insert(job)
+		return self._connect_collection().insert(job)
 
-	def getJob(self, action = None):
+	def get_job(self, action = None):
 		if action == None:
 			job = {'status' : 'W'}
 		else:
@@ -38,9 +39,9 @@ class MinionCollective:
 				'last_update' : int(time())
 			}
 		}
-		return self._connectCollection().find_and_modify(job, modify, False, [('last_update', 1)])
+		return self._connect_collection().find_and_modify(job, modify, False, [('last_update', 1)])
 
-	def getExpiredJob(self):
+	def get_expired_job(self):
 		job = {
 			'status' : 'I',
 			'last_update' : {
@@ -53,9 +54,9 @@ class MinionCollective:
 				'last_update' : int(time())
 			}
 		}
-		return self._connectCollection().find_and_modify(job, modify, False, [('last_update', 1)])
+		return self._connect_collection().find_and_modify(job, modify, False, [('last_update', 1)])
 
-	def finishJob(self, id, newVar = False):
+	def finish_job(self, id, newVar = False):
 		job = {
 			'_id' : id
 		}
@@ -65,28 +66,28 @@ class MinionCollective:
 				'last_update' : int(time())
 			}
 		}
-		return self._connectCollection().find_and_modify(job, modify, False, None, False, new=newVar)
+		return self._connect_collection().find_and_modify(job, modify, False, None, False, new=newVar)
 
-	def removeJobs(self):
+	def remove_jobs(self):
 		job = {
 			'status' : 'C'
 		}
-		return self._connectCollection().remove(job)
+		return self._connect_collection().remove(job)
 
-	def getJobCount(self):
-		return self._connectCollection().count()
+	def get_job_count(self):
+		return self._connect_collection().count()
 
 
-	def _connectServer(self):
-		return pymongo.MongoClient(self._mongoURI);
+	def _connect_server(self):
+		return mongodb_proxy.MongoProxy(pymongo.MongoClient(self._mongoURI));
 
-	def _connectReplicaSet(self):
-		return pymongo.MongoReplicaSetClient(self._mongoURI, self._replicaSet);
+	def _connect_replica_set(self):
+		return mongodb_proxy.MongoProxy(pymongo.MongoReplicaSetClient(self._mongoURI, self._replicaSet));
 
-	def _connectCollection(self):
+	def _connect_collection(self):
 		if not self._conn.alive():
 			if self._replicaSet == None:
-				self._conn = self._connectServer()
+				self._conn = self._connect_server()
 			else:
 				self._conn = self._connectReplicaSet()
 		return self._conn[self._dbName][self._taskPoolName]

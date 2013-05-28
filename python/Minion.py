@@ -6,13 +6,13 @@ minionCollective = MinionCollective.MinionCollective()
 cycles = 0
 
 while True:
-	job = minionCollective.getJob()
+	job = minionCollective.get_job()
 	if job is None:
-		job = minionCollective.getExpiredJob()
+		job = minionCollective.get_expired_job()
 	if job is None:
 		cycles += 1
 		if cycles > 30:
-			minionCollective.removeJobs()
+			minionCollective.remove_jobs()
 			gc.collect()
 		time.sleep(10)
 	else:
@@ -21,4 +21,4 @@ while True:
 			pass
 		elif job['action'] == 'action2':
 			pass
-		minionCollective.finishJob(job['_id'])
+		minionCollective.finish_job(job['_id'])
